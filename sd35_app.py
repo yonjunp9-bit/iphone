@@ -9,7 +9,7 @@ from deep_translator import GoogleTranslator
 HF_TOKEN = st.secrets["HF_TOKEN"]
 
 # 最新のSD3.5 Large用URL（router経由）
-API_URL = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-3.5-large"
+API_URL = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-3.5-large-turbo"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 # 1. アプリの見た目設定
