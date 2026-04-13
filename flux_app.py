@@ -6,7 +6,7 @@ from deep_translator import GoogleTranslator
 
 # --- 設定 ---
 HF_TOKEN = st.secrets["HF_TOKEN"]
-API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
+API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-dev"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 # 1. タイトルを小さく表示
