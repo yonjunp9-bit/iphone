@@ -7,7 +7,7 @@ from deep_translator import GoogleTranslator
 # --- 設定 ---
 HF_TOKEN = st.secrets["HF_TOKEN"]
 # SD3.5 LargeのURL
-API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large"
+API_URL = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-3.5-large"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 # 1. タイトル
