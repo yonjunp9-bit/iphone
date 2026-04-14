@@ -6,54 +6,58 @@ from deep_translator import GoogleTranslator
 
 # --- 設定 ---
 HF_TOKEN = st.secrets["HF_TOKEN"]
+
+# 最新の schnell 用 URL (router経由)
 API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
-# 1. タイトルを小さく表示
-st.subheader("🎨 FLUX.1 カスタム生成アプリ")
+# 1. アプリの見た目
+st.set_page_config(page_title="FLUX Schnell", layout="centered")
+st.subheader("⚡ FLUX.1 Schnell (爆速版)")
 
-# 2. OKプロンプト1：ベース設定（最初から文字を入れておけます）
-prompt_base = st.text_area("① ベースプロンプト (固定設定など):", 
-                          value="高画質、リアルな質感、ポートレート",
-                          placeholder="例：実写風、アニメ調など")
+# 2. 入力エリア (デフォルトの文字をすべて削除しました)
+prompt_base = st.text_area("① ベース設定 (例: cinematic, masterpiece):", 
+                          value="", 
+                          placeholder="空欄でもOKです")
 
-# 3. OKプロンプト2：追加指示（その都度変える内容）
-prompt_add = st.text_area("② 追加プロンプト (今の指示):", 
-                         placeholder="例：公園で遊ぶ柴犬、笑顔で")
+prompt_add = st.text_area("② 追加指示 (何を描きたいか):", 
+                         value="", 
+                         placeholder="例: 青い空とひまわり畑")
 
-# 4. NGプロンプト
-negative_prompt_ja = st.text_area("NGプロンプト (日本語):", 
-                                 value="文字、ロゴ、低画質、奇妙な手",
-                                 placeholder="例：ぼやけ、暗い")
+negative_ja = st.text_area("NGプロンプト (入れたくないもの):", 
+                          value="", 
+                          placeholder="例: 文字、低画質")
 
-# --- 翻訳と合体処理 ---
+# 3. 翻訳
 combined_en = ""
 negative_en = ""
-
 if prompt_base or prompt_add:
-    # 2つを合体させる（読点を入れてつなぐ）
-    full_prompt_ja = f"{prompt_base}、{prompt_add}"
-    
-    # 合体した日本語を翻訳
+    # 日本語を英語に翻訳
+    full_prompt_ja = f"{prompt_base} {prompt_add}"
     combined_en = GoogleTranslator(source='ja', target='en').translate(full_prompt_ja)
     
-    if negative_prompt_ja:
-        negative_en = GoogleTranslator(source='ja', target='en').translate(negative_prompt_ja)
+    if negative_ja:
+        negative_en = GoogleTranslator(source='ja', target='en').translate(negative_ja)
 
-# 5. 生成ボタン
-if st.button("✨ 画像を生成"):
+# 4. 生成ボタン
+if st.button("✨ 爆速で生成"):
     if not (prompt_base or prompt_add):
-        st.error("プロンプトを入力してください")
+        st.warning("何か指示を入力してください！")
     else:
-        with st.spinner("AIが画像を生成中..."):
+        with st.spinner("数秒で描き上げます..."):
             payload = {
                 "inputs": combined_en,
-                "parameters": {"negative_prompt": negative_en}
+                "parameters": {
+                    "negative_prompt": negative_en
+                }
             }
+            
             response = requests.post(API_URL, headers=headers, json=payload)
             
             if response.status_code == 200:
-                # 画像の表示
                 st.image(Image.open(io.BytesIO(response.content)), use_container_width=True)
+            elif response.status_code == 503:
+                st.info("サーバー準備中。30秒ほど待って再試行してください。")
             else:
-                st.error("エラーが発生しました。時間を置いて試してください。")
+                st.error(f"エラーが発生しました (Code: {response.status_code})")
+                st.write("詳細:", response.text)
